@@ -1,0 +1,277 @@
+[
+  {
+    "answer": "/var/lib/docker",
+    "before": [],
+    "hint": "",
+    "options": [
+      "/etc/docker",
+      "/tmp/docker",
+      "/var/lib/docker",
+      "/opt/docker"
+    ],
+    "subtext": "",
+    "text": "What location are the files related to the docker containers and images stored?",
+    "type": "multiple_choice"
+  },
+  {
+    "answer_from": {
+      "command": "echo hello",
+      "jmespath": "[0].Id",
+      "object": "containers",
+      "shell": true,
+      "type": "docker",
+      "url_parameters": "filters={\"name\": [\"alpine-3\"]}&all=true"
+    },
+    "before": [
+      {
+        "command": "docker run -d --name alpine-1 alpine",
+        "shell": true,
+        "type": "command"
+      },
+      {
+        "command": "docker run -d --name alpine-2 alpine",
+        "shell": true,
+        "type": "command"
+      },
+      {
+        "command": "docker run -d --name alpine-3 alpine",
+        "shell": true,
+        "type": "command"
+      }
+    ],
+    "hint": "The directory name is the same as the container id",
+    "options": [
+      "6fa415a7d24c669c661597853b5ef4f375c86761a2c5d12bfa2550a3a48ed95e",
+      "643b9cf496c099293d77cf530ed627c815321d2c22def65ef21cc29071d80a4a"
+    ],
+    "subtext": "",
+    "text": "What folder under `/var/lib/docker` are the files related to the container `alpine-3` image stored?",
+    "type": "multiple_choice"
+  },
+  {
+    "hint": "Run the command `docker run -d --name mysql-db -e MYSQL_ROOT_PASSWORD=db_pass123 mysql`.",
+    "subtext": "Note: Remember to run it in the detached mode.",
+    "tests": [
+      {
+        "err_message": "Pod with image NGINX not found",
+        "jmespath": "[].Image",
+        "name": "mysql",
+        "object": "containers",
+        "spec": "Task completed",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\": [\"mysql-db\"]}"
+      },
+      {
+        "custom_api": "/containers/mysql-db/json",
+        "err_message": "",
+        "jmespath": "Config.Env",
+        "name": "MYSQL_ROOT_PASSWORD=db_pass123",
+        "object": "base",
+        "spec": "Correct Password set",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "Run a `mysql` container named `mysql-db` using the `mysql` image. Set database password to `db_pass123`",
+    "type": "config_test"
+  },
+  {
+    "answer": "30",
+    "before": [
+      {
+        "command": "sh /tmp/write-data.sh",
+        "shell": true,
+        "type": "command"
+      }
+    ],
+    "image": "Image URL Path",
+    "options": [
+      "10",
+      "20",
+      "30",
+      "40"
+    ],
+    "staging_message": "Writing data to database...",
+    "subtext": "Command: `sh get-data.sh`",
+    "text": "We have just written some data into the database. To view the information we wrote, run the get-data.sh script available in the /root directory.  How many customers data have been written to the database?",
+    "type": "multiple_choice"
+  },
+  {
+    "answer": "NO",
+    "before": [
+      {
+        "command": "docker rm mysql-db -f",
+        "shell": true,
+        "type": "command"
+      },
+      {
+        "command": "sleep 10",
+        "shell": true,
+        "type": "command"
+      }
+    ],
+    "hint": "",
+    "image": "",
+    "options": [
+      "YES",
+      "NO"
+    ],
+    "staging_message": "Few days later....",
+    "subtext": "Use the same command to try and view data. Try to find the container.",
+    "text": "The database crashed. Are you able to view the data now?",
+    "type": "multiple_choice"
+  },
+  {
+    "text": "Damn! We didn't plan that well at all. Let's try again!!",
+    "subtext": "",
+    "type": "info",
+    "staging_message": "Setting things up",
+    "image": "",
+    "options": [
+      "Ok"
+    ],
+    "answer": "Ok"
+  },
+  {
+    "hint": "Run the command `docker run -v /opt/data:/var/lib/mysql -d --name mysql-db -e MYSQL_ROOT_PASSWORD=db_pass123 mysql`.",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "Use the same name : `mysql-db` and same password: `db_pass123` as before. Mysql stores data at `/var/lib/mysql` inside the container.",
+    "tests": [
+      {
+        "err_message": "Pod with image NGINX not found",
+        "jmespath": "[].Image",
+        "name": "mysql",
+        "object": "containers",
+        "spec": "Task completed",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\": [\"mysql-db\"]}"
+      },
+      {
+        "custom_api": "/containers/mysql-db/json",
+        "err_message": "",
+        "jmespath": "Config.Env",
+        "name": "MYSQL_ROOT_PASSWORD=db_pass123",
+        "object": "base",
+        "spec": "Correct Password set",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "custom_api": "/containers/mysql-db/json",
+        "jmespath": "Mounts[].Source",
+        "name": "/opt/data",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Host: /opt/data",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "custom_api": "/containers/mysql-db/json",
+        "jmespath": "Mounts[].Destination",
+        "name": "/var/lib/mysql",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Container: /var/lib/mysql",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "Run a mysql container again, but this time map a volume to the container so that the data stored by the container is stored at `/opt/data` on the host.",
+    "type": "config_test"
+  },
+  {
+    "answer": "Ok",
+    "before": [
+      {
+        "command": "sh /tmp/write-data.sh",
+        "shell": true,
+        "type": "command"
+      }
+    ],
+    "image": "",
+    "options": [
+      "Ok"
+    ],
+    "staging_message": "Writing data to database....again...",
+    "subtext": "Command: `sh get-data.sh`",
+    "text": "We have now re-written data again.  Run the `get-data.sh` script to ensure data is present.",
+    "type": "info"
+  },
+  {
+    "before": [
+      {
+        "command": "docker rm mysql-db -f",
+        "shell": true,
+        "type": "command"
+      },
+      {
+        "command": "sleep 10",
+        "shell": true,
+        "type": "command"
+      }
+    ],
+    "hint": "",
+    "image": "",
+    "staging_message": "Few days later ....",
+    "subtext": "Just run the same command as before. Here it is for your convinience: `docker run -v /opt/data:/var/lib/mysql -d --name mysql-db -e MYSQL_ROOT_PASSWORD=db_pass123 mysql`",
+    "tests": [
+      {
+        "err_message": "Pod with image NGINX not found",
+        "jmespath": "[].Image",
+        "name": "mysql",
+        "object": "containers",
+        "spec": "Task completed",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\": [\"mysql-db\"]}"
+      },
+      {
+        "custom_api": "/containers/mysql-db/json",
+        "err_message": "",
+        "jmespath": "Config.Env",
+        "name": "MYSQL_ROOT_PASSWORD=db_pass123",
+        "object": "base",
+        "spec": "Correct Password set",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "custom_api": "/containers/mysql-db/json",
+        "jmespath": "Mounts[].Source",
+        "name": "/opt/data",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Host: /opt/data",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "custom_api": "/containers/mysql-db/json",
+        "jmespath": "Mounts[].Destination",
+        "name": "/var/lib/mysql",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Container: /var/lib/mysql",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "Disaster strikes.. again! And the database crashed again. But this time we have the data stored at `/opt/data` directory.  Re-deploy a new mysql instance using the same options as before.",
+    "type": "config_test"
+  },
+  {
+    "answer": "Ok",
+    "image": "",
+    "options": [
+      "Ok"
+    ],
+    "staging_message": "Setting things up",
+    "subtext": "command: `sh get-data.sh`",
+    "text": "Fetch data and make sure it is present.",
+    "type": "info"
+  }
+]

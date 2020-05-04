@@ -1,0 +1,96 @@
+[
+  {
+    "before": [
+      {
+        "command": "ls",
+        "shell": true,
+        "type": "command"
+      }
+    ],
+    "options": [
+      "Ok"
+    ],
+    "subtext": "",
+    "text": "`Dockerfiles` for a few commonly used Docker Images are given in the `/root` (current) folder. Inspect them and try to answer the following questions",
+    "type": "info",
+    "answer": "Ok"
+  },
+  {
+    "before": [],
+    "hint": "Open the file `/root/Dockerfile-mysql` and inspect the `ENTRYPOINT` instruction",
+    "subtext": "",
+    "text": "What is the `ENTRYPOINT` configured on the `mysql` image?",
+    "type": "multiple_choice",
+    "options": [
+      "NO ENTRYPOINT CONFIGURED",
+      "mysqld",
+      "docker-entrypoint.sh",
+      "/usr/local/bin"
+    ],
+    "answer": "docker-entrypoint.sh"
+  },
+  {
+    "hint": "Open the file `/root/Dockerfile-wordpress` and inspect the `CMD` instruction",
+    "text": "What is the `CMD` configured on the `wordpress` image?",
+    "type": "multiple_choice",
+    "options": [
+      "docker-entrypoint.sh",
+      "apache2-foreground",
+      "wordpress"
+    ],
+    "answer": "apache2-foreground"
+  },
+  {
+    "text": "What is the final command run at startup when the `wordpress` image is run. Consider both `ENTRYPOINT` and `CMD` instructions",
+    "subtext": "",
+    "type": "multiple_choice",
+    "staging_message": "Setting things up",
+    "hint": "`ENTRYPOINT` + `CMD`",
+    "image": "",
+    "options": [
+      "apache2-foreground",
+      "docker-entrypoint.sh",
+      "docker-entrypoint.sh apache2-foreground",
+      "docker-entrypoint.sh wordpress",
+      "wordpress"
+    ],
+    "answer": "docker-entrypoint.sh apache2-foreground"
+  },
+  {
+    "text": "What is the command run at startup when the `ubuntu` image is run?",
+    "subtext": "",
+    "type": "multiple_choice",
+    "staging_message": "Setting things up",
+    "hint": "",
+    "image": "",
+    "options": [
+      "bash",
+      "entrypoint bash",
+      "bash ubuntu",
+      "ubuntu",
+      "/root bash"
+    ],
+    "weight": null,
+    "answer": "bash"
+  },
+  {
+    "text": "Run an instance of the ubuntu image to run the sleep 1000 command at startup",
+    "subtext": "Run it in detached mode.",
+    "type": "config_test",
+    "staging_message": "Setting things up",
+    "hint": "Command: `docker run -d  ubuntu sleep 1000`",
+    "image": "",
+    "tests": [
+      {
+        "object": "containers",
+        "name": "sleep 1000",
+        "namespace": "default",
+        "spec": "Ubuntu container run with sleep 1000 command",
+        "jmespath": "[].Command",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filter={\"ancestor\": [\"ubuntu\"]}"
+      }
+    ]
+  }
+]

@@ -1,0 +1,152 @@
+[
+	{
+		"text": "First create a postgress database container called `db`, image `postgres`, environmental variable `POSTGRES_PASSWORD=mysecretpassword`",
+		"subtext": "if you are unsure, check the hints section for the exact commands.",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "docker run --name db  -e POSTGRES_PASSWORD=mysecretpassword -d postgres",
+		"image": "",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Container \"db\" running with env variable POSTGRES_PASSWORD?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect db |  jq '.[] | .Config.Env[]' | grep -i POSTGRES_PASSWORD  | grep mysecretpassword",
+				"shell": true
+			}
+		]
+	},
+	{
+		"text": "Next let's create a simple wordpress container called `wordpress`, image: `wordpress`,  link it to the container `db` and expose it on host port `8085`",
+		"subtext": "if you are unsure, check the hints section for the exact commands.",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "run `docker run -d --name=wordpress --link db:db -p 8085:80 wordpress`",
+		"image": "",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Wordpress running on the correct HostPort?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect wordpress |  jq '.[] | .NetworkSettings.Ports' | grep HostPort | grep 8085",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "WordPress linked to db container ?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect wordpress |  jq '.[] | .HostConfig.Links' | grep db",
+				"shell": true
+			}
+		]
+	},
+	{
+		"text": "Now that we have a working wordpress site, lets run it with Docker Compose!",
+		"subtext": "",
+		"type": "info",
+		"staging_message": "Setting things up",
+		"image": "",
+		"options": [
+			"Ok"
+		],
+		"answer": "Ok"
+	},
+	{
+		"text": "Let's clean up the actions carried out in previous steps. Delete the db and wordpress containers.",
+		"subtext": "",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "",
+		"image": "Image URL Path",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "wordpress container deleted?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "wordpresscount=`docker ps -a | grep wordpress | wc -l` && [ $wordpresscount -eq 0 ]",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "db container deleted?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "dbcount=`docker ps -a | grep db | wc -l` && [ $dbcount -eq 0 ]",
+				"shell": true
+			}
+		]
+	},
+	{
+		"text": "Create a `docker-compose.yml` file under the path `/root/wordpress`. Once done, run a docker-compose up.",
+		"subtext": "The compose file should have exact specification of the `wordpress` and `db` container",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "",
+		"image": "",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Syntax Check for the docker-compose.yml",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker-compose -f /root/wordpress/docker-compose.yml config",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Wordpress running on the correct HostPort?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect wordpress_wordpress_1 |  jq '.[] | .NetworkSettings.Ports' | grep HostPort | grep 8085",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "WordPress linked to db container",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect wordpress_wordpress_1 |  jq '.[] | .NetworkSettings.Networks.wordpress_default.Links' | grep db",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "db container running with env variable POSTGRES_PASSWORD?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect wordpress_db_1 |  jq '.[] | .Config.Env[]' | grep -i POSTGRES_PASSWORD  | grep mysecretpassword",
+				"shell": true
+			}
+		]
+	}
+]

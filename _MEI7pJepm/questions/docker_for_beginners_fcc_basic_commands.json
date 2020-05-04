@@ -1,0 +1,387 @@
+[
+  {
+    "answer_from": {
+      "api": "version",
+      "command": "echo hello",
+      "custom_api": "/version",
+      "jmespath": "Version",
+      "object": "base",
+      "shell": true,
+      "type": "docker"
+    },
+    "before": [
+      {
+        "command": "ls",
+        "shell": true,
+        "type": "command"
+      }
+    ],
+    "hint": "Run the command `docker version` and look for the version of Server Engine.",
+    "options": [
+      "1.12.1-ce",
+      "1.13.1-ce",
+      "17.12.1-ee"
+    ],
+    "subtext": "",
+    "text": "What is the version of Docker Server Engine running on the Host?",
+    "type": "multiple_choice"
+  },
+  {
+    "answer_from": {
+      "command": "echo hello",
+      "jmespath": "length([])",
+      "object": "containers",
+      "shell": true,
+      "type": "docker"
+    },
+    "before": [],
+    "hint": "Run the command `docker ps` and count the number of running containers.",
+    "options": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "subtext": "",
+    "text": "How many containers are running on this host?",
+    "type": "multiple_choice"
+  },
+  {
+    "answer_from": {
+      "command": "echo hello",
+      "jmespath": "length([])",
+      "object": "images",
+      "shell": true,
+      "type": "docker"
+    },
+    "hint": "Run the command `docker images` and count the number of available images.",
+    "options": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "text": "How many `images` are available on this host?",
+    "type": "multiple_choice"
+  },
+  {
+    "hint": "Run the command `docker run redis`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "tests": [
+      {
+        "jmespath": "[].Image",
+        "name": "redis",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Image: redis",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "Run a container using the `redis` image",
+    "type": "config_test"
+  },
+  {
+    "hint": "Hit CTRL+C if you are on the container's terminal. Or else run `docker stop <container-id>`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "tests": [
+      {
+        "jmespath": "[].Image",
+        "name": "redis",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Container Stopped",
+        "state": "absent",
+        "type": "docker"
+      }
+    ],
+    "text": "Stop the container you just created",
+    "type": "config_test"
+  },
+  {
+    "answer": null,
+    "answer_from": {
+      "command": "echo hello",
+      "jmespath": "length([])",
+      "object": "containers",
+      "shell": true,
+      "type": "docker"
+    },
+    "hint": "Run the command `docker ps` and count the number of running containers.",
+    "image": "",
+    "options": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "text": "How many containers are `RUNNING` on this host now?",
+    "type": "multiple_choice"
+  },
+  {
+    "answer": "sample-option-1",
+    "answer_from": {
+      "command": "echo hello",
+      "jmespath": "length([])",
+      "object": "containers",
+      "shell": true,
+      "type": "docker"
+    },
+    "before": [
+      {
+        "command": "docker run --name awesome_northcut -d ubuntu sleep 1000",
+        "shell": true,
+        "type": "command"
+      },
+      {
+        "command": "docker run --name=nginx-1 -d nginx:alpine",
+        "shell": true,
+        "type": "command"
+      },
+      {
+        "command": "docker run --name=nginx-2 -d nginx:alpine",
+        "shell": true,
+        "type": "command"
+      },
+      {
+        "command": "docker run -d alpine sleep 1000",
+        "shell": true,
+        "type": "command"
+      },
+      {
+        "command": "docker run -d alpine",
+        "shell": true,
+        "type": "command"
+      },
+      {
+        "type": "command",
+        "command": "sleep 15",
+        "shell": true
+      }
+    ],
+    "hint": "",
+    "image": "",
+    "options": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "staging_message": "Creating some containers...",
+    "subtext": "We just created a few.",
+    "text": "How many containers are `RUNNING` on this host now?",
+    "type": "multiple_choice"
+  },
+  {
+    "answer": null,
+    "answer_from": {
+      "command": "echo hello",
+      "jmespath": "length([])",
+      "object": "containers",
+      "shell": true,
+      "type": "docker",
+      "url_parameters": "all=True"
+    },
+    "hint": "Run the command `docker ps -a`",
+    "image": "",
+    "options": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "staging_message": "Setting things up",
+    "subtext": "Including both `Running` and `Not Running` ones",
+    "text": "How many containers are `PRESENT` on the host now?",
+    "type": "multiple_choice"
+  },
+  {
+    "answer": null,
+    "answer_from": {
+      "command": "echo hello",
+      "jmespath": "[0].Image",
+      "object": "containers",
+      "shell": true,
+      "type": "docker",
+      "url_parameters": "filters={\"name\":[\"nginx-1\"]}"
+    },
+    "hint": "Run the `docker ps` command and check under the `IMAGE` column",
+    "image": "",
+    "options": [
+      "nginx",
+      "alpine",
+      "nginx:v2",
+      "nginx:1.7"
+    ],
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "text": "What is the image used to run the `nginx-1` container",
+    "type": "multiple_choice"
+  },
+  {
+    "answer": "awesome_northcut ",
+    "hint": "Run the `docker ps` command and look at the `NAMES` column",
+    "image": "",
+    "options": [
+      "nginx-1",
+      "eager_ramanujan",
+      "silly_samet",
+      "awesome_northcut "
+    ],
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "text": "What is the name of the container created using the `ubuntu` image",
+    "type": "multiple_choice"
+  },
+  {
+    "answer": null,
+    "answer_from": {
+      "command": "echo hello",
+      "jmespath": "[0].Id",
+      "object": "containers",
+      "shell": true,
+      "type": "docker",
+      "url_parameters": "filters={\"status\": [\"exited\"], \"ancestor\":[\"alpine\"]}"
+    },
+    "hint": "Run the `docker ps -a` command and identify the ID of the container that uses alpine image",
+    "image": "",
+    "options": [
+      "b2cc2c6eabf1c87fa6bafcc727b3939be55fdfbc0504e93957ab7ed9aee2ba84",
+      "87040ced7bdd52078c258112fe2b7402810e1bbea92aa0f531cd363af2d67f0a",
+      "5b75287f3393030af86965ab20033fed2109fd4347b5ca9be15d0cd929b183be"
+    ],
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "text": "What is the `ID` of the container that uses the `alpine` image and is `not running`",
+    "type": "multiple_choice"
+  },
+  {
+    "answer": "EXITED",
+    "hint": "Run the command `docker ps -a` and look at the `STATUS` column.",
+    "image": "",
+    "options": [
+      "RUNNING",
+      "STARTED",
+      "STOPPED",
+      "EXITED",
+      "COMPLETED"
+    ],
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "text": "What is the state of the stopped `alpine` container?",
+    "type": "multiple_choice"
+  },
+  {
+    "hint": "To stop containers run the command `docker stop <container id | container name>` <br> And then to delete them run `docker rm <container id | container name>`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "Both `Running` and `Not Running` ones. Remember you may have to stop containers before deleting them.",
+    "tests": [
+      {
+        "jmespath": "length([])",
+        "name": 0,
+        "namespace": "default",
+        "object": "containers",
+        "spec": "All containers deleted",
+        "state": "equal",
+        "type": "docker",
+        "url_parameters": "all=True"
+      }
+    ],
+    "text": "Delete all containers from the Docker Host",
+    "type": "config_test"
+  },
+  {
+    "hint": "Command `docker rmi ubuntu`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "tests": [
+      {
+        "jmespath": "[].RepoTags[]",
+        "name": "ubuntu:latest",
+        "namespace": "default",
+        "object": "images",
+        "spec": "ubuntu image deleted",
+        "state": "absent",
+        "type": "docker"
+      }
+    ],
+    "text": "Delete the `ubuntu` Image",
+    "type": "config_test"
+  },
+  {
+    "hint": "Run the command `docker pull nginx:1.14-alpine`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "Only pull the image, do not create a container.",
+    "tests": [
+      {
+        "jmespath": "[].RepoTags[]",
+        "name": "nginx:1.14-alpine",
+        "namespace": "default",
+        "object": "images",
+        "spec": "Image pulled",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "You are required to pull a docker image which will be used to run a container later. Pull the image `nginx:1.14-alpine`",
+    "type": "config_test"
+  },
+  {
+    "hint": "Run the command `docker run --name webapp nginx:1.14-alpine`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "tests": [
+      {
+        "jmespath": "[].Image",
+        "name": "nginx:1.14-alpine",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Container created",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "jmespath": "[].Names[]",
+        "name": "/webapp",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Name: webapp",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"ancestor\": [\"nginx:1.14-alpine\"]}"
+      }
+    ],
+    "text": "Run a container with the `nginx:1.14-alpine` image and name it `webapp`",
+    "type": "config_test"
+  },
+  {
+    "hint": "Run the `docker rmi command`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "Remove containers as necessary",
+    "tests": [
+      {
+        "jmespath": "length([])",
+        "name": 0,
+        "namespace": "default",
+        "object": "images",
+        "spec": "Remove all images",
+        "state": "equal",
+        "type": "docker"
+      }
+    ],
+    "text": "**Cleanup:** Delete all images on the host",
+    "type": "config_test"
+  }
+]

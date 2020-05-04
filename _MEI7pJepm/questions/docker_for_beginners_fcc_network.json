@@ -1,0 +1,265 @@
+[
+  {
+    "answer_from": {
+      "api": "version",
+      "command": "echo hello",
+      "custom_api": "",
+      "jmespath": "length([])",
+      "object": "networks",
+      "shell": true,
+      "type": "docker"
+    },
+    "before": [
+      {
+        "command": "ls",
+        "shell": true,
+        "type": "command"
+      }
+    ],
+    "hint": "Command: `docker network ls`",
+    "options": [
+      1,
+      2,
+      4
+    ],
+    "subtext": "",
+    "text": "Explore the current setup and identify the number of networks that exist on this system",
+    "type": "multiple_choice"
+  },
+  {
+    "answer_from": {
+      "command": "echo hello",
+      "jmespath": "[0].Id",
+      "object": "networks",
+      "shell": true,
+      "type": "docker",
+      "url_parameters": "filters={\"name\": [\"bridge\"]}"
+    },
+    "before": [],
+    "hint": "Command : `docker network ls`",
+    "options": [
+      "d6d852f6099426dadfdad90852f13b9a8695e93d20f028de939baf2c047faf85",
+      "fb9c1a74a36514f6f2d767eee7be024a0ffd40b6cf208886de42ee8003f5a6a6"
+    ],
+    "subtext": "",
+    "text": "What is the ID associated with the bridge network?",
+    "type": "multiple_choice"
+  },
+  {
+    "answer": "host",
+    "before": [
+      {
+        "command": "docker run -d --network host --name alpine-1 alpine sleep 1000",
+        "shell": true,
+        "type": "command"
+      }
+    ],
+    "hint": "Run the command `docker inspect alpine-1` and look under the Networks section.",
+    "options": [
+      "bridge",
+      "host",
+      "none"
+    ],
+    "text": "We just ran a container named `alpine-1`. Identify the network it is attached to.",
+    "type": "multiple_choice"
+  },
+  {
+    "answer": null,
+    "answer_from": {
+      "command": "echo hello",
+      "jmespath": "[0].IPAM.Config[0].Subnet",
+      "object": "networks",
+      "shell": true,
+      "type": "docker",
+      "url_parameters": "filters={\"name\": [\"bridge\"]}"
+    },
+    "hint": "Run the command `docker network inspect bridge`",
+    "image": "",
+    "options": [
+      "182.18.0.1/16",
+      "192.168.0.1/24"
+    ],
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "text": "What is the subnet configured on `bridge` network?",
+    "type": "multiple_choice"
+  },
+  {
+    "hint": "Command: `docker run --name alpine-2 --network=none alpine`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "tests": [
+      {
+        "custom_api": "/containers/alpine-2/json",
+        "jmespath": "keys(NetworkSettings.Networks)",
+        "name": "none",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Name: alpine-2 attached to none network",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "Run a container named `alpine-2` using the `alpine` image and attach it to the `none` network.",
+    "type": "config_test"
+  },
+  {
+    "hint": "command: `docker network create --driver bridge --subnet 182.18.0.1/24 --gateway 182.18.0.1 wp-mysql-network`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "tests": [
+      {
+        "jmespath": "[].Name",
+        "name": "wp-mysql-network",
+        "namespace": "default",
+        "object": "networks",
+        "spec": "Name: wp-mysql-network",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "jmespath": "[].Driver",
+        "name": "bridge",
+        "namespace": "default",
+        "object": "networks",
+        "spec": "Driver: bridge",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\": [\"wp-mysql-network\"]}"
+      },
+      {
+        "jmespath": "[].IPAM.Config[].Subnet",
+        "name": "182.18.0.1/24",
+        "namespace": "default",
+        "object": "networks",
+        "spec": "subnet: 182.18.0.1/24",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\": [\"wp-mysql-network\"]}"
+      },
+      {
+        "jmespath": "[].IPAM.Config[].Gateway",
+        "name": "182.18.0.1",
+        "namespace": "default",
+        "object": "networks",
+        "spec": "Gateway: 182.18.0.1",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\": [\"wp-mysql-network\"]}"
+      }
+    ],
+    "text": "Create a new network named `wp-mysql-network` using the `bridge` driver. Allocate subnet `182.18.0.1/24`. Configure `Gateway 182.18.0.1`",
+    "type": "config_test"
+  },
+  {
+    "hint": "Command: `docker run -d -e MYSQL_ROOT_PASSWORD=db_pass123 --name mysql-db --network wp-mysql-network mysql:5.6`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "Set the database password to use `db_pass123`. The environment variable to set is `MYSQL_ROOT_PASSWORD`",
+    "tests": [
+      {
+        "jmespath": "[].Names[]",
+        "name": "/mysql-db",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Name: mysql-db",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "jmespath": "[].Image",
+        "name": "mysql:5.6",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Image: mysql:5.6",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\":[\"mysql-db\"]}"
+      },
+      {
+        "custom_api": "/containers/mysql-db/json",
+        "jmespath": "Config.Env",
+        "name": "MYSQL_ROOT_PASSWORD=db_pass123",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Env: MYSQL_ROOT_PASSWORD=db_pass123",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "custom_api": "/containers/mysql-db/json",
+        "jmespath": "keys(NetworkSettings.Networks)",
+        "name": "wp-mysql-network",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Network: wp-mysql-network",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "Deploy a `mysql` database using the `mysql:5.6` image and name it `mysql-db`. Attach it to the newly created network `wp-mysql-network`",
+    "type": "config_test"
+  },
+  {
+    "hint": "Command: `docker run --network=wp-mysql-network -e DB_Host=mysql-db -e DB_Password=db_pass123 -p 38080:8080 --name webapp --link mysql-db:mysql-db -d kodekloud/simple-webapp-mysql`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "tests": [
+      {
+        "jmespath": "[].Names[]",
+        "name": "/webapp",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Name: webapp",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "jmespath": "[].Image",
+        "name": "kodekloud/simple-webapp-mysql",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Image: kodekloud/simple-webapp-mysql",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\":[\"webapp\"]}"
+      },
+      {
+        "custom_api": "/containers/webapp/json",
+        "jmespath": "Config.Env",
+        "name": "DB_Host=mysql-db",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Env: DB_Host=mysql-db",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "custom_api": "/containers/webapp/json",
+        "jmespath": "keys(NetworkSettings.Networks)",
+        "name": "wp-mysql-network",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Network: wp-mysql-network",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "Deploy a web application named `webapp`, using image `kodekloud/simple-webapp-mysql`. Expose port to 38080 on the host. The application takes an environment variable `DB_Host` that has the hostname of the mysql database. Make sure to attach it to the newly created network `wp-mysql-network`",
+    "type": "config_test"
+  },
+  {
+    "answer": "Ok",
+    "image": "",
+    "options": [
+      "Ok"
+    ],
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "text": "If you are successfull, you should be able to view the application by clicking on the `HOST:38080` at the top of your terminal. You should see a green success message.",
+    "type": "info"
+  }
+]

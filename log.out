@@ -1,0 +1,14 @@
+/tmp/_MEI7pJepm/requests/__init__.py:91: RequestsDependencyWarning: urllib3 (1.25.8) or chardet (3.0.4) doesn't match a supported version!
+Application Initializing...
+START_TIME 2020-05-04 14:11:41.481220
+Gathering Environment Variables...
+ENV Variables - KUBE_HOST: 0.0.0.0
+ENV Variables - KUBE_PORT: 8888
+ENV Variables - DOCKER_HOST: tcp://host01:2375
+ENV Variables - DOCKER_HOST_NAME: host01
+ENV Variables - DOCKER_PORT: 2375
+ENV Variables - UI_TYPE: docker
+ENV Variables - APP_HOST: 0.0.0.0
+ENV Variables - APP_PORT: 8080
+Starting Lab Exercise
+/main - rendering index.html

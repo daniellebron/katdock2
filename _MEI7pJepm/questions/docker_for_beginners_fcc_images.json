@@ -1,0 +1,294 @@
+[
+  {
+    "answer_from": {
+      "jmespath": "length([])",
+      "object": "images",
+      "shell": true,
+      "type": "docker"
+    },
+    "hint": "Run the command `docker images` and count the number of available images.",
+    "options": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "text": "How many `images` are available on this host?",
+    "type": "multiple_choice"
+  },
+  {
+    "before": [],
+    "hint": "Run the command `docker images` and look under the `SIZE` column",
+    "subtext": "",
+    "text": "What is the size of the `Ubuntu` image?",
+    "type": "multiple_choice",
+    "options": [
+      "5.58MB",
+      "95MB",
+      "1.2GB",
+      "64GB"
+    ],
+    "answer_from": {
+      "type": "command",
+      "command": "docker images | grep ubuntu | awk '{print $7}'",
+      "shell": true
+    }
+  },
+  {
+    "hint": "Run the `docker images` command and look for the `TAG` column",
+    "text": "We just pulled a new image. What is the tag on the newly pulled `NGINX` image?",
+    "type": "multiple_choice",
+    "options": [
+      "latest",
+      "1.10.1",
+      "1.14",
+      "1.14-alpine",
+      "11cd0b38bc3c"
+    ],
+    "before": [
+      {
+        "type": "command",
+        "command": "docker pull nginx:1.14-alpine",
+        "shell": true
+      }
+    ],
+    "staging_message": "Pulling a new image...",
+    "answer": "1.14-alpine"
+  },
+  {
+    "text": "We just downloaded the code of an application. What is the base image used in the Dockerfile?",
+    "subtext": "Inspect the Dockerfile in the `webapp-color` directory.",
+    "type": "multiple_choice",
+    "staging_message": "Cloning application code...",
+    "hint": "You can either open the file using `vi /root/webapp-color/Dockerfile` (or using comamnds such as cat/more/less/vim e.t.c) and look for the FROM instruction or search for it directecly using `grep -i FROM /root/webapp-color/Dockerfile`",
+    "image": "",
+    "options": [
+      "python",
+      "python:3.6",
+      "ubuntu:latest",
+      "rhel:3.6",
+      "centos:7"
+    ],
+    "answer": "python:3.6",
+    "before": [
+      {
+        "type": "command",
+        "command": "git clone --single-branch --branch docker-images https://github.com/kodekloudhub/webapp-color.git /root/webapp-color",
+        "shell": true
+      }
+    ]
+  },
+  {
+    "text": "To what location within the container is the application code copied to during a Docker build?",
+    "subtext": "Inspect the Dockerfile in the `webapp-color` directory.",
+    "type": "multiple_choice",
+    "staging_message": "Setting things up",
+    "hint": "Open the Dockerfile and look for `COPY` command",
+    "image": "",
+    "options": [
+      "/root",
+      "/var",
+      "/tmp",
+      "/opt"
+    ],
+    "answer": "/opt"
+  },
+  {
+    "text": "When a container is created using the image built with this Dockerfile, what is the command used to `RUN` the application inside it.",
+    "subtext": "Inspect the Dockerfile in the `webapp-color` directory.",
+    "type": "multiple_choice",
+    "staging_message": "Setting things up",
+    "hint": "Open the Dockerfile and look for `ENTRYPOINT` command",
+    "image": "",
+    "options": [
+      "app.exe",
+      "python app.py",
+      "pip install flask",
+      "docker run app"
+    ],
+    "answer": "python app.py"
+  },
+  {
+    "text": "What `port` is the web application run within the container?",
+    "subtext": "Inspect the Dockerfile in the `webapp-color` directory.",
+    "type": "multiple_choice",
+    "staging_message": "Setting things up",
+    "hint": "Open the Dockerfile and look for the port in `EXPOSE` command",
+    "image": "",
+    "options": [
+      "8080",
+      "80",
+      "0.0.0.0",
+      "5000"
+    ],
+    "answer": "8080"
+  },
+  {
+    "text": "Build a docker image using the Dockerfile and name it `webapp-color`. No tag to be specified.",
+    "subtext": "",
+    "type": "config_test",
+    "staging_message": "Setting things up",
+    "hint": "Run the command `docker build -t webapp-color . `",
+    "image": "",
+    "tests": [
+      {
+        "object": "images",
+        "name": "webapp-color:latest",
+        "namespace": "default",
+        "spec": "Image Name: webapp-color",
+        "jmespath": "[].RepoTags[]",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": ""
+      }
+    ]
+  },
+  {
+    "text": "Run an instance of the image `webapp-color` and publish port `8080` on the container to `8282` on the host.",
+    "subtext": "",
+    "type": "config_test",
+    "staging_message": "Setting things up",
+    "hint": "Command: `docker run -p 8282:8080 webapp-color`",
+    "image": "",
+    "tests": [
+      {
+        "object": "containers",
+        "name": "webapp-color",
+        "namespace": "default",
+        "spec": "Container with image 'webapp-color'",
+        "jmespath": "[].Image",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "object": "containers",
+        "name": 8080,
+        "namespace": "default",
+        "spec": "Container Port: 8080",
+        "jmespath": "[].Ports[].PrivatePort",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"ancestor\":[\"webapp-color\"]}"
+      },
+      {
+        "object": "containers",
+        "name": 8282,
+        "namespace": "default",
+        "spec": "Host Port: 8282",
+        "jmespath": "[].Ports[].PublicPort",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"ancestor\":[\"webapp-color\"]}"
+      }
+    ]
+  },
+  {
+    "text": "Access the application by clicking on the tab named `HOST:8282` above your terminal.",
+    "subtext": "After you are done, you may stop the running container by hitting CTRL + C if you wish to.",
+    "type": "info",
+    "staging_message": "Setting things up",
+    "image": "",
+    "options": [
+      "Ok"
+    ],
+    "answer": "Ok"
+  },
+  {
+    "text": "What is the base Operating System used by the `python:3.6` image?",
+    "subtext": "If required, run an instance of the image to figure it out.",
+    "type": "multiple_choice",
+    "staging_message": "Setting things up",
+    "hint": "Run `docker run python:3.6 cat /etc/*release*` command",
+    "image": "",
+    "options": [
+      "ubuntu",
+      "rhel",
+      "centos",
+      "debian"
+    ],
+    "answer": "debian"
+  },
+  {
+    "text": "What is the approximate size of the `webapp-color` image?",
+    "subtext": "",
+    "type": "multiple_choice",
+    "staging_message": "Setting things up",
+    "hint": "Run `docker images` command and look under `SIZE`",
+    "image": "",
+    "options": [
+      "80MB",
+      "500MB",
+      "2GB",
+      "920MB"
+    ],
+    "answer": "920MB"
+  },
+  {
+    "text": "That's really BIG for a Docker Image. Docker images are supposed to be small and light weight. Let us try to trim it down.",
+    "subtext": "",
+    "type": "info",
+    "staging_message": "Setting things up",
+    "image": "",
+    "options": [
+      "Ok"
+    ],
+    "answer": "Ok"
+  },
+  {
+    "text": "Build a new smaller docker image by modifying the same Dockerfile and name it `webapp-color` and tag it `lite`.",
+    "subtext": "Hint: Find a smaller base image for python:3.6. Make sure the final image is less than `150MB`.",
+    "type": "config_test",
+    "staging_message": "Setting things up",
+    "hint": "Modify Dockerfile to use `python:3.6-alpine` image, and then build using `docker build -t webapp-color:lite .`",
+    "image": "",
+    "tests": [
+      {
+        "object": "images",
+        "name": "webapp-color:lite",
+        "namespace": "default",
+        "spec": "Name: webapp-color:lite",
+        "jmespath": "[].RepoTags[]",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "object": "images",
+        "name": 1,
+        "namespace": "default",
+        "spec": "Image size less than 150MB.",
+        "jmespath": "[?Size<`154857600`].Size | length(@)",
+        "state": "equal",
+        "type": "docker",
+        "url_parameters": "filter=webapp-color:lite"
+      }
+    ]
+  },
+  {
+    "text": "Run an instance of the new image `webapp-color:lite` and publish port `8080` on the container to `8383` on the host.",
+    "subtext": "",
+    "type": "config_test",
+    "staging_message": "Setting things up",
+    "hint": "Command: `docker run -p 8383:8080 webapp-color:lite`",
+    "image": "",
+    "tests": [
+      {
+        "object": "containers",
+        "name": "webapp-color:lite",
+        "namespace": "default",
+        "spec": "Container with image 'webapp-color:lite'",
+        "jmespath": "[].Image",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "object": "containers",
+        "name": 8383,
+        "namespace": "default",
+        "spec": "Container  to publish port 8080 to 8383",
+        "jmespath": "[?Image=='webapp-color:lite'].Ports[] | [?PrivatePort==`8080`] | [?PublicPort==`8383`].PublicPort",
+        "state": "present",
+        "type": "docker"
+      }
+    ]
+  }
+]

@@ -1,0 +1,147 @@
+[
+  {
+    "answer": "pink",
+    "before": [
+      {
+        "command": "docker run -d -e APP_COLOR=pink kodekloud/simple-webapp",
+        "shell": true,
+        "type": "command"
+      }
+    ],
+    "hint": "",
+    "options": [
+      "blue",
+      "green",
+      "pink",
+      "yellow"
+    ],
+    "subtext": "",
+    "text": "Inspect the environment variables set on the running container and identify the value set to the APP_COLOR variable",
+    "type": "multiple_choice"
+  },
+  {
+    "before": [],
+    "hint": "Command : `docker run --name blue-app -e APP_COLOR=blue -d kodekloud/simple-webapp`",
+    "subtext": "",
+    "tests": [
+      {
+        "custom_api": "",
+        "jmespath": "[].Names[]",
+        "name": "/blue-app",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Name: blue-app",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "jmespath": "[].Image",
+        "name": "kodekloud/simple-webapp",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Image: kodekloud/simple-webapp",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\":[\"blue-app\"]}"
+      },
+      {
+        "custom_api": "/containers/blue-app/json",
+        "jmespath": "Config.Env",
+        "name": "APP_COLOR=blue",
+        "namespace": "default",
+        "object": "base",
+        "spec": "ENV Variable: APP_COLOR=blue",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "Run a container named `blue-app` using image `kodekloud/simple-webapp` and set the environment variable `APP_COLOR` to `blue`",
+    "type": "config_test"
+  },
+  {
+    "answer": "Ok",
+    "options": [
+      "Ok"
+    ],
+    "text": "Let us now deploy a simple 2 tier application, that hosts a webapp in the front-end for users and talks to a mysql database.",
+    "type": "info"
+  },
+  {
+    "hint": "Command: `docker run -d -e MYSQL_ROOT_PASSWORD=db_pass123 --name mysql-db mysql`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "Set the database password to use `db_pass123`",
+    "tests": [
+      {
+        "jmespath": "[].Names[]",
+        "name": "/mysql-db",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Name: mysql-db",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "jmespath": "[].Image",
+        "name": "mysql",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Image: mysql",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\":[\"mysql-db\"]}"
+      },
+      {
+        "custom_api": "/containers/mysql-db/json",
+        "jmespath": "Config.Env",
+        "name": "MYSQL_ROOT_PASSWORD=db_pass123",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Env: MYSQL_ROOT_PASSWORD=db_pass123",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "Deploy a `mysql` database using the `mysql` image and name it `mysql-db`.",
+    "type": "config_test"
+  },
+  {
+    "hint": "Command: `docker run -e DB_Host=mysql-db -e DB_Password=db_pass123 -p 38080:8080 --name webapp --link mysql-db:mysql-db -d kodekloud/simple-webapp-mysql`",
+    "image": "",
+    "staging_message": "Setting things up",
+    "subtext": "",
+    "tests": [
+      {
+        "jmespath": "[].Names[]",
+        "name": "/webapp",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Name: webapp",
+        "state": "present",
+        "type": "docker"
+      },
+      {
+        "jmespath": "[].Image",
+        "name": "kodekloud/simple-webapp-mysql",
+        "namespace": "default",
+        "object": "containers",
+        "spec": "Image: kodekloud/simple-webapp-mysql",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"name\":[\"webapp\"]}"
+      },
+      {
+        "custom_api": "/containers/webapp/json",
+        "jmespath": "Config.Env",
+        "name": "DB_Host=mysql-db",
+        "namespace": "default",
+        "object": "base",
+        "spec": "Env: DB_Host=mysql-db",
+        "state": "present",
+        "type": "docker"
+      }
+    ],
+    "text": "Deploy a web application named `webapp`, using image `kodekloud/simple-webapp-mysql`. Expose port to 38080 on the host. The application takes an environment variable `DB_Host` that has the hostname of the mysql database.",
+    "type": "config_test"
+  }
+]

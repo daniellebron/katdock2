@@ -1,0 +1,128 @@
+[
+  {
+    "before": [
+      {
+        "type": "command",
+        "command": "docker run -d -p 38080:80 -p 3456:3456 nginx:alpine",
+        "shell": true
+      }
+    ],
+    "hint": "Run the command `docker ps` and count the number of running containers.",
+    "subtext": "",
+    "text": "Let us first inspect the environment. How many containers are running on this host?",
+    "type": "multiple_choice",
+    "options": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "answer_from": {
+      "type": "docker",
+      "command": "echo hello",
+      "shell": true,
+      "object": "containers",
+      "jmespath": "length([])"
+    }
+  },
+  {
+    "before": [],
+    "hint": "Run the command `docker ps` and look under the IMAGE column.",
+    "subtext": "",
+    "text": "What is the image used by the container?",
+    "type": "multiple_choice",
+    "options": [
+      "redis",
+      "tomcat",
+      "nginx:alpine",
+      "nginx",
+      "ubuntu"
+    ],
+    "answer": "nginx:alpine"
+  },
+  {
+    "hint": "Run the command `docker ps` and look under the PORTS column",
+    "text": "How many `ports` are published on this container?",
+    "type": "multiple_choice",
+    "options": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "answer": 2
+  },
+  {
+    "text": "Which of the below ports are the exposed on the `CONTAINER`?",
+    "subtext": "",
+    "type": "multiple_choice",
+    "staging_message": "Setting things up",
+    "hint": "Run the command `docker ps` and look under the PORTS column.Ports on the right(after ->) are exposed on the container",
+    "image": "",
+    "options": [
+      "3456 & 3456",
+      "22 & 3456",
+      "38080 & 80",
+      "80 & 8080",
+      "3456 & 80"
+    ],
+    "answer": "3456 & 80"
+  },
+  {
+    "text": "Which of the below ports are published on `Host`?",
+    "subtext": "",
+    "type": "multiple_choice",
+    "staging_message": "Setting things up",
+    "hint": "Run the command `docker ps` and look under the PORTS column.Ports on the left(before ->) are published on the host",
+    "image": "",
+    "options": [
+      "3456 & 3456",
+      "22 & 3456",
+      "38080 & 3456",
+      "3456 & 80",
+      "80 & 80"
+    ],
+    "answer": "38080 & 3456"
+  },
+  {
+    "text": "Run an instance of `kodekloud/simple-webapp` with a tag `blue` and map port 8080 on the container to 38282 on the host.",
+    "subtext": "",
+    "type": "config_test",
+    "staging_message": "Setting things up",
+    "hint": "`docker run -p 38282:8080 kodekloud/simple-webapp:blue`",
+    "image": "",
+    "tests": [
+      {
+        "object": "containers",
+        "name": "kodekloud/simple-webapp:blue",
+        "namespace": "default",
+        "spec": "Image: kodekloud/simple-webapp:blue",
+        "jmespath": "[].Image",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": ""
+      },
+      {
+        "object": "containers",
+        "name": 8080,
+        "namespace": "default",
+        "spec": "Container port 8080",
+        "jmespath": "[].Ports[].PrivatePort",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"ancestor\": [\"kodekloud/simple-webapp:blue\"]}"
+      },
+      {
+        "object": "containers",
+        "name": 38282,
+        "namespace": "default",
+        "spec": "Host Port: 38282",
+        "jmespath": "[].Ports[].PublicPort",
+        "state": "present",
+        "type": "docker",
+        "url_parameters": "filters={\"ancestor\": [\"kodekloud/simple-webapp:blue\"]}"
+      }
+    ]
+  }
+]

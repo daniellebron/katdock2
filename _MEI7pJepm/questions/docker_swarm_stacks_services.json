@@ -1,0 +1,128 @@
+[
+	{
+		"text": "How many nodes are part of Docker swarm currently?",
+		"subtext": "",
+		"type": "multiple_choice",
+		"staging_message": "Setting things up",
+		"hint": "run `docker node ls`",
+		"image": "",
+		"options": [
+			"4",
+			"3",
+			"1"
+		],
+		"answer": null,
+		"answer_from": {
+			"type": "command",
+			"command": "docker node ls | grep Active | wc -l",
+			"shell": true
+		}
+	},
+	{
+		"text": "Let's initialize a swarm cluster on the node `master`, once done add `node01` to the cluster",
+		"subtext": "you can ssh to `node01` from `master` node",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "run `docker swarm init`",
+		"image": "",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "node master is the leader?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker node ls | grep Leader | awk '{print $3}' | grep master",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "node01 joined swarm as a worker?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker node ls | grep -vi leader | grep node01 | grep Ready",
+				"shell": true
+			}
+		]
+	},
+	{
+		"text": "Create a service called `simple-web-app` with image `kodekloud/webapp-color`, `3 ` replicas. The service should be published on port 8083 and make use of environment variable  `APP_COLOR=pink`",
+		"subtext": "the webapp runs on container port `8080`",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "run `docker service create --name simple-web-app --replicas 3 -p 8083:8080 -e APP_COLOR=pink kodekloud/webapp-color`",
+		"image": "",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Env APP_COLR=pink",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker service inspect simple-web-app | jq '.[] | .Spec.TaskTemplate.ContainerSpec.Env' | grep APP_COLOR=pink",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "image: kodekloud/webapp_color",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker service inspect simple-web-app | jq '.[] | .Spec.TaskTemplate.ContainerSpec.Image' | grep kodekloud/webapp-color",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Service  published on port 8083?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker service inspect simple-web-app | jq '.[] | .Spec.EndpointSpec.Ports[].PublishedPort'  | grep 8083",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "3 Replicas Running?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker service ls | grep simple-web-app | grep 3/3",
+				"shell": true
+			}
+		]
+	},
+	{
+		"text": "Scale the replicas for service `simple-web-app` to `4`",
+		"subtext": "",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "run `docker service update simple-web-app --replicas 4`",
+		"image": "",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Replicas scaled to 4?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker service ls | grep simple-web-app | grep 4/4",
+				"shell": true
+			}
+		]
+	}
+]

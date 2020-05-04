@@ -1,0 +1,166 @@
+[
+	{
+		"text": "How many named volumes are currently available in the Docker Host?",
+		"subtext": "",
+		"type": "multiple_choice",
+		"staging_message": "Setting things up",
+		"hint": "Run `docker volume ls`",
+		"image": "",
+		"options": [
+			"1",
+			"4",
+			"3"
+		],
+		"answer": null,
+		"answer_from": {
+			"type": "command",
+			"command": "docker volume ls | grep -vi DRIVER | wc -l",
+			"shell": true
+		}
+	},
+	{
+		"text": "We have created a few new volumes. How many are available now?",
+		"subtext": "",
+		"type": "multiple_choice",
+		"staging_message": "Setting things up",
+		"hint": "",
+		"image": "",
+		"options": [
+			"1",
+			"4",
+			"3"
+		],
+		"answer": null,
+		"before": [
+			{
+				"type": "command",
+				"action": "create",
+				"config": {
+					"apiVersion": "v1",
+					"kind": "Pod",
+					"metadata": {
+						"name": "simple-webapp-1",
+						"labels": {
+							"name": "simple-webapp"
+						}
+					},
+					"spec": {
+						"containers": [
+							{
+								"name": "simple-webapp",
+								"image": "kodekloud/webapp-delayed-start",
+								"ports": [
+									{
+										"containerPort": 8080
+									}
+								]
+							}
+						]
+					}
+				},
+				"command": "docker volume create testvol; docker volume create newvol",
+				"shell": true
+			}
+		],
+		"answer_from": {
+			"type": "command",
+			"command": "docker volume ls | grep -v DRIVER | wc -l",
+			"shell": true
+		}
+	},
+	{
+		"text": "Which driver is used for the volume `newvol`?",
+		"subtext": "",
+		"type": "multiple_choice",
+		"staging_message": "Setting things up",
+		"hint": "run `docker volume inspect newvol`",
+		"image": "",
+		"options": [
+			"lvm2",
+			"devmapper",
+			"zfs",
+			"aufs"
+		],
+		"answer": null,
+		"answer_from": {
+			"type": "command",
+			"command": "docker volume inspect newvol  | grep Driver | awk '{print $2}' | awk -F , '{print $1}'",
+			"shell": true
+		}
+	},
+	{
+		"text": "Create a new volume called `nginx-vol`",
+		"subtext": "",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "run `docker volume create new-vol`",
+		"image": "",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Volume created correctly?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker volume ls | grep nginx-vol",
+				"shell": true
+			}
+		]
+	},
+	{
+		"text": "Create a new nginx container with name `nginx` with the volume `nginx-vol` mounted to path `/usr/share/nginx/html` and exposed to host port `5002`.",
+		"subtext": "Nginx runs on port 80 on the container",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "run `docker run -d --name=nginx -v newvol:/usr/share/nginx/html -p 5002:80 nginx`",
+		"image": "",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "nginx container running?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect nginx | jq '.[] | .State.Status'",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Container exposed on host port 5002",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect nginx | jq '.[] | .NetworkSettings.Ports' | grep 5002",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Container using the correct volume?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect nginx | jq '.[] | .Mounts[].Name' | grep nginx-vol",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Volume mounted to the correct destination?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect nginx | jq '.[] | .Mounts[].Destination' | grep /usr/share/nginx/html",
+				"shell": true
+			}
+		]
+	}
+]

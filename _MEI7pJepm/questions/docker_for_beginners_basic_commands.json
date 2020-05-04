@@ -1,0 +1,127 @@
+[
+  {
+    "answer_from": {
+      "api": "version",
+      "command": "echo hello",
+      "custom_api": "/version",
+      "jmespath": "Version",
+      "object": "base",
+      "shell": true,
+      "type": "docker"
+    },
+    "before": [
+      {
+        "type": "command",
+        "command": "ls",
+        "shell": true
+      }
+    ],
+    "hint": "Run the command `docker version` and look for the version of Server Engine.",
+    "options": [
+      "1.12.1-ce",
+      "1.13.1-ce",
+      "17.12.1-ee"
+    ],
+    "subtext": "",
+    "text": "What is the version of Docker Server Engine running on the Host?",
+    "type": "multiple_choice"
+  },
+  {
+    "before": [],
+    "hint": "Run the command `docker ps` and count the number of running containers.",
+    "subtext": "",
+    "text": "How many containers are running on this host?",
+    "type": "multiple_choice",
+    "options": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "answer_from": {
+      "type": "docker",
+      "command": "echo hello",
+      "shell": true,
+      "object": "containers",
+      "jmespath": "length([])"
+    }
+  },
+  {
+    "hint": "Run the command `docker images` and count the number of available images.",
+    "text": "How many `images` are available on this host?",
+    "type": "multiple_choice",
+    "options": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "answer_from": {
+      "type": "docker",
+      "command": "echo hello",
+      "shell": true,
+      "object": "images",
+      "jmespath": "length([])"
+    }
+  },
+  {
+    "text": "Run a container using the `redis` image",
+    "subtext": "",
+    "type": "config_test",
+    "staging_message": "Setting things up",
+    "hint": "Run the command `docker run redis`",
+    "image": "",
+    "tests": [
+      {
+        "object": "containers",
+        "name": "redis",
+        "namespace": "default",
+        "spec": "Image: redis",
+        "jmespath": "[].Image",
+        "state": "present",
+        "type": "docker"
+      }
+    ]
+  },
+  {
+    "text": "Stop the container you just created",
+    "subtext": "",
+    "type": "config_test",
+    "staging_message": "Setting things up",
+    "hint": "Hit CTRL+C if you are on the terminal. Or else run `docker stop <container-id>`",
+    "image": "",
+    "tests": [
+      {
+        "object": "containers",
+        "name": "redis",
+        "namespace": "default",
+        "spec": "Container Stopped",
+        "jmespath": "[].Image",
+        "state": "absent",
+        "type": "docker"
+      }
+    ]
+  },
+  {
+    "text": "How many containers are `RUNNING` on this host now?",
+    "subtext": "",
+    "type": "multiple_choice",
+    "staging_message": "Setting things up",
+    "hint": "Run the command `docker ps` and count the number of running containers.",
+    "image": "",
+    "options": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "answer": null,
+    "answer_from": {
+      "type": "docker",
+      "command": "echo hello",
+      "shell": true,
+      "object": "containers",
+      "jmespath": "length([])"
+    }
+  }
+]

@@ -1,0 +1,77 @@
+[
+	{
+		"text": "Create a `docker-compose.yml` file under the path `/root/wordpress`. Once done, run a docker-compose up.",
+		"subtext": "Service Name: `wordpress`, Image: `wordpress`. Service Name:`db`, Image:`postgres`.",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "",
+		"image": "",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Syntax Check for the docker-compose.yml",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker-compose -f /root/wordpress/docker-compose.yml config",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Wordpress published on the correct HostPort 8085?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect wordpress_wordpress_1 |  jq '.[] | .NetworkSettings.Ports' | grep HostPort | grep 8085",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "WordPress linked to db container",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect wordpress_wordpress_1 |  jq '.[] | .NetworkSettings.Networks.wordpress_default.Links' | grep db",
+				"shell": true
+			},
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "db container running with env variable POSTGRES_PASSWORD=mysecretpassword?",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker container inspect wordpress_db_1 |  jq '.[] | .Config.Env[]' | grep -i POSTGRES_PASSWORD  | grep mysecretpassword",
+				"shell": true
+			}
+		]
+	},
+	{
+		"text": "Create a `docker-compose.yml` file under the path `/root/jenkins`. Once done, run a docker-compose up.\nName: `jenkins`\nImage: `jenkins/jenkins:lts`\nports: hostport: `8089` --> Container Port: `8080`\nhostport: `50000` --> Container Port: `50000`",
+		"subtext": "Volume jenkins_home mapped to directory /var/jenkins\\_home",
+		"type": "config_test",
+		"staging_message": "Setting things up",
+		"hint": "See answer file under /var/answers",
+		"image": "",
+		"tests": [
+			{
+				"object": "Namespace",
+				"name": "ingress-space",
+				"namespace": "default",
+				"spec": "Syntax Check",
+				"jmespath": "items[].metadata.name",
+				"state": "present",
+				"type": "command",
+				"command": "docker-compose -f /root/jenkins/docker-compose.yml config",
+				"shell": true
+			}
+		]
+	}
+]

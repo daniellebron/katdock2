@@ -1,0 +1,151 @@
+/* app css stylesheet */
+
+.menu {
+  list-style: none;
+  border-bottom: 0.1em solid black;
+  margin-bottom: 2em;
+  padding: 0 0 0.5em;
+}
+
+.menu:before {
+  content: "[";
+}
+
+.menu:after {
+  content: "]";
+}
+
+.menu > li {
+  display: inline;
+}
+
+.menu > li + li:before {
+  content: "|";
+  padding-right: 0.3em;
+}
+
+
+body {
+  /** display: flex; */
+  /* height: 100vh; */
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  /* background-color: #282f39; */
+  background-color: #ffffff;
+  background-repeat: no-repeat;
+}
+
+.container {
+    padding-bottom: 200px;
+}
+
+.main-card-panel {
+
+    background-color: #3F51B5;
+    min-width: 500px;
+    color: #f1f1f1;
+    opacity: .96;
+
+}
+
+.question_text {
+    color: #f1f1f1;
+    font-size: 17px;
+}
+
+.answer_options {
+    margin-top: 50px;
+}
+
+.fa-close {
+    color: #d86050
+}
+
+/*.collapsible-header {
+    background-color: #f15795 !important;
+    color: #f1f1f1;
+    padding: 5px;
+}
+
+.collapsible-body {
+    background-color: #e91e63 !important;
+    color: #f1f1f1;
+    padding: 5px;
+}*/
+
+.collapsible-header {
+    color: #00BCD4;
+}
+
+.spinner-color {
+    border-color: #00BCD4;
+}
+
+
+.status-bar-items {
+    font-size: 9px;
+    border-radius: 2px;
+    margin: 2px;
+    padding: 5px;
+    color: white;
+    background-color: #7b9e9b;
+}
+
+.hint {
+    border: none;
+}
+
+footer {
+    text-align: center;
+    background-color: #f1f1f1;
+    color: #009688;
+    opacity: .96;
+}
+
+.btn, .btn-large, .btn-small, .btn-floating {
+    background-color: #e91e63;
+    color: #f1f1f1
+}
+
+.fa-check {
+    color: lightgreen;
+}
+
+
+.editor {
+        height: 500px;
+        width: 800px;
+        font-size: 16px;
+    }
+
+#log_viewer{
+    height: 1000px;
+    width: 1200px;
+}
+
+#jmespath_result_editor {
+    height: 200px;
+    width: 400px;
+}
+
+
+.options-button {
+    height: auto;
+    text-transform: none;
+    min-height: 20px;
+    min-width: 50px;
+    line-height: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-right: 8px;
+}
+
+code {
+    color: #FFEB3B;
+}
+
+.red {
+    background-color: #F44336 !important;
+}
